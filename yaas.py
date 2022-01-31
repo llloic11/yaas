@@ -7,10 +7,17 @@ from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse, Response, RedirectResponse
 from starlette.templating import Jinja2Templates
+from starlette.routing import Mount
+from starlette.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
+
 import yt_dlp as youtube_dl
+from time import sleep
 
 __version__ = '1.0.0'
 
+from pathlib import Path
+__download_dir__ = Path("./downloads")
 
 # https://stackoverflow.com/a/1094933
 def human_filesize(num: Union[float, int], suffix: str = 'B') -> str:
@@ -61,8 +68,12 @@ templates.env.globals.update({
 exception_handlers = {
     HTTPException: handle_http_exception
 }
+routes = [
+    Mount('/downloads', app=StaticFiles(directory=__download_dir__, html=True), name="downloads"),
+]
+
 # https://github.com/encode/starlette/issues/1142
-app = Starlette(exception_handlers=exception_handlers)  # type: ignore
+app = Starlette(exception_handlers=exception_handlers, routes=routes)  # type: ignore
 
 
 @app.route('/')
@@ -89,14 +100,98 @@ async def fetch(request: Request) -> Response:
     except NotImplementedError as exc:
         return templates.TemplateResponse('error.html', {'error': str(exc), 'request': request})
     else:
-        return templates.TemplateResponse('video.html', {'videos': videos, 'request': request})
-
+        return templates.TemplateResponse('video.html', {'videos': videos, 'request': request, 'url': url})
 
 @app.route('/details.json')
 def fetch_json(request: Request) -> Response:
     url = request.query_params['url']
     return JSONResponse(get_video_info(url))
 
+import tempfile
+import os
+@app.route('/download')
+async def download(request: Request) -> Response:
+    try:
+        url = request.query_params['url']
+    except KeyError:
+        return RedirectResponse(url=request.url_for('index'))
+    else:
+        if not url:
+            return RedirectResponse(url=request.url_for('index'))
+    try:
+        format = request.query_params['format']
+    except KeyError:
+        format = ""
+    else:
+        if not format:
+            format = ""
+
+    dir = tempfile.mkdtemp(dir=__download_dir__)
+    dir_fd = os.open(dir, os.O_RDONLY)
+    def opener(path, flags):
+        return os.open(path, flags, dir_fd=dir_fd)
+    with open('url', 'w', opener=opener) as f:
+        print(url, file=f, end='')
+    with open('format', 'w', opener=opener) as f:
+        print(f"{format}", file=f, end='')
+    with open('commit', 'w', opener=opener) as f:
+        pass
+    ans = f"Download {url} with format {format} in {dir}\n"
+    return PlainTextResponse(ans)
+
+    try:
+        videos = get_video_info(url)
+    except youtube_dl.utils.DownloadError as e:
+        # A handled youtube-dl error is still an HTTP 200 from us
+        return templates.TemplateResponse('error.html', {'error': parse_err(e), 'request': request})
+    video = videos[0]
+
+    title = video['title']
+    if format is None:
+        download_url = video['url']
+    else:
+        for cur_format in video['formats']:
+            if cur_format['format_id'] == format:
+                download_url = cur_format['url']
+                filename = f"{title}.{cur_format['ext']}"
+                break
+    ans = f"Download {url} with format {format}: will download url:\n{download_url}\n"
+    wgetBack = BackgroundTask(wget, url=download_url)
+    return PlainTextResponse(ans, background=wgetBack)
+
+import subprocess
+async def wget(url):
+    return
+
+@app.route('/list_downloads')  # propriety
+async def list_downloads(request: Request) -> Response:
+    videos = []
+    for d in __download_dir__.glob("tmp*"):
+        if (d/"done").is_file():
+            file = list(d.glob("*.*"))[0]
+            url = (file.parent/"url").read_text()
+            name = file.name
+            file = file.relative_to(__download_dir__)
+            dir = str(file.parent)
+            v = (str(file), dir, name, url)
+            videos.append(v)
+    return templates.TemplateResponse('list_downloads.html', {'videos': videos, 'request': request})
+
+@app.route('/remove_download')  # propriety
+async def remove_download(request: Request) -> Response:
+    try:
+        dir = request.query_params['dir']
+        if (__download_dir__/dir).is_dir():
+            dir = __download_dir__/dir 
+            for child in dir.iterdir():
+                child.unlink(missing_ok=True)
+            dir.rmdir()
+    except KeyError:
+        return RedirectResponse(url=request.url_for('index'))
+    else:
+        if not dir:
+            return RedirectResponse(url=request.url_for('index'))
+    return RedirectResponse(url=request.url_for('list_downloads'))
 
 @app.route('/robots.txt')
 def robots_txt(request: Request) -> Response:

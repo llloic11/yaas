@@ -42,7 +42,7 @@
      {% endif %}
   </p>
 <p>
-  <a href="{{ video['url'] }}" download="{{ video['title'] }}.{{ video['ext'] }}">Download (best quality)</a>
+  <a href="{{ url_for_query(request, 'download', url=video['webpage_url']) }}">Download (best quality)</a>
   {{ video|print_filesize }}
 </p>
 {# The fetch standard forbids setting the Referer header. To be fair, it also
@@ -57,7 +57,7 @@
   <ul>
     {% for format in video['formats']|reverse %}
     <li>
-      <a href="{{ format['url'] }}">{{ format['ext'] }} ({{ format['format'] }})</a>
+      <a href="{{ url_for_query(request, 'download', url=video['webpage_url'], format=format['format_id']) }}">{{ format['ext'] }} ({{ format['format'] }})</a>
       {{ format|print_filesize }}
     </li>
     {% endfor %}

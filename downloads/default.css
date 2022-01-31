@@ -1,0 +1,127 @@
+html {
+	line-height:1.15;
+	-webkit-text-size-adjust:100%
+}
+body {
+	margin:0
+}
+main {
+	display:block
+}
+h1 {
+	font-size:2em;
+	margin:0.67em 0
+}
+hr {
+	box-sizing:content-box;
+	height:0;
+	overflow:visible
+}
+pre {
+	font-family:monospace,monospace;
+	font-size:1em
+}
+a {
+	background-color:transparent
+}
+abbr[title]{
+	border-bottom:none;
+	text-decoration:underline;
+	text-decoration:underline dotted
+}
+b,strong {
+	font-weight:bolder
+}
+code,kbd,samp {
+	font-family:monospace,monospace;
+	font-size:1em
+}
+small {
+	font-size:80%
+}
+sub,sup {
+	font-size:75%;
+	line-height:0;
+	position:relative;
+	vertical-align:baseline
+}
+sub {
+	bottom:-0.25em
+}
+sup {top:-0.5em}
+html {
+	min-height:100%;
+	box-sizing:border-box;
+	padding:1em
+}
+@media only screen and (max-width:560px){ 
+	html {padding:0}}
+	*,*:before,
+	*:after
+	{box-sizing:inherit}
+	body {
+		line-height:1.25em;
+		max-width:560px;
+		font-family:-apple-system,system-ui,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+		background-color:#ffffff;
+		-webkit-font-smoothing:antialiased;
+		-moz-osx-font-smoothing:grayscale;
+		color:#111111;
+		background:url("./bg.svg")
+}
+@media (prefers-color-scheme:dark){
+	body{
+		background-color:#001f3f;
+		color:#dddddd
+	}
+}
+@media only screen and (max-width:560px){
+	body{line-height:1.5em}
+}
+@media only screen and (max-width:560px){
+	li a{line-height:2em}
+}
+main{background-color:#ffffff}
+@media (prefers-color-scheme:dark){
+	main{background-color:#001f3f}
+}
+body>header,body>nav,main{
+	padding:0 1em
+}
+footer{padding:1em}
+h1 {
+	line-height:1em;
+	margin-bottom:0
+}
+h2 {
+	text-transform:uppercase;
+	font-size:.9em;
+	margin:2em 0 -.5em 0
+}
+a,p {
+	font-size:1em
+}
+a {
+	color:#111111;
+	text-decoration:none;
+	border-bottom:1px #0074d9 solid
+}
+a:hover {
+	color:#0074d9;
+	border:0
+}
+@media (prefers-color-scheme:dark) {
+	a:hover {color:#ffdc00}
+}
+a:active,a:focus{outline:none}
+@media (prefers-color-scheme:dark){
+	a {color:#dddddd;border-bottom:1px #ffdc00 solid}
+}
+small,small a {
+	color:#aaaaaa;
+	border:0;
+	text-decoration:none
+}
+ol:,ul{
+	padding-left:30px
+}

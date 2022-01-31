@@ -1,0 +1,16 @@
+{% extends '_base.html' %}
+
+
+{% block main %}
+<p>List of available videos :</p>
+{% for file, dir, name, url in videos %}
+<div>
+<p><a href="{{ request.url_for("downloads", path=file) }}">{{ name }}</a>
+<a href="{{ url }}">original url</a>
+<a href="{{ url_for_query(request, "remove_download", dir=dir) }}">delete</a>
+</p>
+<p><video width="100%" controls><source src="{{ request.url_for("downloads", path=file) }}"></video></p>
+</div>
+{% endfor %}
+{% endblock main %}
+
