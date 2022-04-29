@@ -54,6 +54,7 @@
 {% endif %}
 <details>
   <summary>All formats</summary>
+  {% if video['formats'] is defined %}
   <ul>
     {% for format in video['formats']|reverse %}
     <li>
@@ -62,6 +63,9 @@
     </li>
     {% endfor %}
   </ul>
+  {% else %}
+  <p>Only one format available</p>
+  {% endif %}
   <small><a href="{{ url_for_query(request, 'fetch_json', url=video['webpage_url']) }}" target="_blank">View metadata (JSON)</a></small>
 </details>
 </section>
