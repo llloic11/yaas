@@ -1,7 +1,8 @@
 import urllib.parse
 from typing import Mapping, Sequence, Union
 
-from jinja2 import StrictUndefined
+from jinja2 import StrictUndefined, __version__ as jinja2_version
+from starlette import __version__ as starlette_version
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
@@ -63,6 +64,8 @@ templates.env.filters['print_filesize'] = print_filesize
 templates.env.globals.update({
     'url_for_query': url_for_query,
     'youtubedl_version': youtube_dl.version.__version__,
+    'jinja2_version': jinja2_version,
+    'starlette_version': starlette_version,
     'yaas_version': __version__
 })
 exception_handlers = {
